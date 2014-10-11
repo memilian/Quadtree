@@ -37,7 +37,7 @@ class Quadtree<T : QuadtreeElement>
 	 * @param maxDepth  The maximum depth of the tree.
 	 * 
 	 */
-	public function new(boundaries:Box, ?minElementBeforeSplit:Int=5, ?maxDepth:Int=2147483647)
+	public inline function new(boundaries:Box, ?minElementBeforeSplit:Int=5, ?maxDepth:Int=2147483647)
 	{
 		this.boundaries = boundaries.clone();
 		this.minElementBeforeSplit = minElementBeforeSplit;
@@ -51,25 +51,26 @@ class Quadtree<T : QuadtreeElement>
 	 * 
 	 * @return True if the element was added, else false.
 	 */
-	public function add(element:T):Bool
+	public inline function add(element:T):Bool
 	{
 		if (!boundaries.contains(element.box()))
 			return false;
 			
 		// Try to add it in a children.
+		var added:Bool = false;
 		if (depth<maxDepth && (topLeft != null || entities.length >=  minElementBeforeSplit))
 		{
 			if (topLeft == null)
 				split();
 			
-			if (topLeft.add(element)) { return true;}
-			if (topRight.add(element)) { return true;}
-			if (bottomRight.add(element)) { return true;}
-			if (bottomLeft.add(element)) { return true;}
+			if (topLeft.add(element)) { added = true;}
+			else if (topRight.add(element)) { added = true;}
+			else if (bottomRight.add(element)) { added = true;}
+			else if (bottomLeft.add(element)) { added = true;}
 		}
 		
 		// Add here.
-		entities.push(element);
+		if (!added) { entities.push(element); }
 		return true;
 	}
 	
@@ -80,7 +81,7 @@ class Quadtree<T : QuadtreeElement>
 	 * 
 	 * @return The list of element who collide with the box.
 	 */
-	public function getCollision(box:Box):Array<T>
+	public inline function getCollision(box:Box):Array<T>
 	{
 		if (!boundaries.intersect(box))
 			return new Array<T>();
@@ -116,7 +117,7 @@ class Quadtree<T : QuadtreeElement>
 	 * 
 	 * @return A new tree.
 	 */
-	private function getChildTree(boundaries:Box):Quadtree<T>
+	private inline function getChildTree(boundaries:Box):Quadtree<T>
 	{
 		var child:Quadtree<T> = new Quadtree<T>(boundaries,minElementBeforeSplit,maxDepth);
 		child.depth = depth + 1;
@@ -127,7 +128,7 @@ class Quadtree<T : QuadtreeElement>
 	 * Split the current node to add children.
 	 * Rebalance the current entities if they can't fit in a lower node.
 	 */
-	private function split():Void
+	private inline function split():Void
 	{
 		var leftWidth:Int = Std.int(boundaries.width/2);
 		var topHeight:Int = Std.int(boundaries.height/2);
@@ -149,7 +150,7 @@ class Quadtree<T : QuadtreeElement>
 	/**
 	 * Move entities who can fit in a lower node.
 	 */
-	private function balance():Void
+	private inline function balance():Void
 	{
 		for (e in entities)
 		{
@@ -169,7 +170,7 @@ class Quadtree<T : QuadtreeElement>
 	 * 
 	 * @return True if the element has been removed, else false.
 	 */
-	public function remove(e:T):Bool
+	public inline function remove(e:T):Bool
 	{
 		if (topLeft == null)
 			return entities.remove(e);

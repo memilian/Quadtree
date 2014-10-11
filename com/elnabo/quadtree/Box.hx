@@ -20,7 +20,7 @@ class Box
 	 * @param width  The width.
 	 * @param height  The height.
 	 */
-	public function new(x:Int,y:Int,width:Int,height:Int)
+	public inline function new(x:Int,y:Int,width:Int,height:Int)
 	{
 		this.x = x;
 		this.y = y;
@@ -34,7 +34,7 @@ class Box
 	 * 
 	 * @return A clone of this box.
 	 */
-	public function clone() : Box
+	public inline function clone() : Box
 	{
 		return new Box(x,y,width,height);
 	}
@@ -46,7 +46,7 @@ class Box
 	 * 
 	 * @return True if the other is in this box, else false.
 	 */
-	public function contains(other:Box):Bool
+	public inline function contains(other:Box):Bool
 	{
 		if (other == null)
 			return false;
@@ -65,7 +65,7 @@ class Box
 	 * 
 	 * @return True if this box is inside the other box, else false.
 	 */
-	public function inside(other:Box):Bool
+	public inline function inside(other:Box):Bool
 	{
 		if (other == null)
 			return false;
@@ -83,7 +83,7 @@ class Box
 	 * 
 	 * @return True if the two box intersect, else false.
 	 */
-	public function intersect(other:Box):Bool
+	public inline function intersect(other:Box):Bool
 	{
 		if (other == null)
 			return false;
@@ -102,7 +102,7 @@ class Box
 	 * @return A clamped version of the other box, null if they don't 
 	 * intersect.
 	 */
-	public function clamp(other:Box):Box
+	public inline function clamp(other:Box):Box
 	{
 		
 		if (!intersect(other))
