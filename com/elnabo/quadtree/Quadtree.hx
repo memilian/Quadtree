@@ -109,6 +109,45 @@ class Quadtree<T : QuadtreeElement>
 	}
 	
 	/**
+	 * Return all the element who don't collide with a given box.
+	 * 
+	 * @param box  The box.
+	 * 
+	 * @return The list of element who don't collide with the box.
+	 */
+	public inline function getExclusion(box:Box):Array<T>
+	{
+		if (boundaries.inside(box))
+			return new Array<T>();
+			
+		var res:Array<T>;
+		if (boundaries.intersect(box))
+		{
+			res = new Array<T>();
+			for (e in entities)
+			{
+				if (!box.intersect(e.box()))
+				{
+					res.push(e);
+				}
+			}
+		}
+		else
+		{
+			res = entities.copy();
+		}
+		
+		if (topLeft == null)
+			return res;
+		
+		// Test if children contain some.
+		res = res.concat(topLeft.getExclusion(box));
+		res = res.concat(topRight.getExclusion(box));
+		res = res.concat(bottomRight.getExclusion(box));
+		return res.concat(bottomLeft.getExclusion(box));
+	}
+	
+	/**
 	 * Create a new tree node.
 	 * 
 	 * Only used to create children.
