@@ -1,12 +1,14 @@
 package com.elnabo.quadtree;
 
+import de.polygonal.ds.DLL;
+
 /**
  * Quadtree data structure.
  */
 class Quadtree<T : QuadtreeElement>
 {
 	/** List of entities in this node. */
-	private var entities:Array<T> = new Array<T>();
+	private var entities:DLL<T>;
 	/** The boundaries of this node. */
 	private var boundaries:Box;
 	/** The depth of this node. */
@@ -39,6 +41,7 @@ class Quadtree<T : QuadtreeElement>
 	 */
 	public inline function new(boundaries:Box, ?minElementBeforeSplit:Int=5, ?maxDepth:Int=2147483647)
 	{
+		entities = new DLL<T>();
 		this.boundaries = boundaries.clone();
 		this.minElementBeforeSplit = minElementBeforeSplit;
 		this.maxDepth = maxDepth;
@@ -58,7 +61,7 @@ class Quadtree<T : QuadtreeElement>
 			
 		// Try to add it in a children.
 		var added:Bool = false;
-		if (depth<maxDepth && (topLeft != null || entities.length >=  minElementBeforeSplit))
+		if (depth < maxDepth && entities.size() >=  minElementBeforeSplit)
 		{
 			if (topLeft == null)
 				split();
@@ -70,7 +73,7 @@ class Quadtree<T : QuadtreeElement>
 		}
 		
 		// Add here.
-		if (!added) { entities.push(element); }
+		if (!added) { entities.append(element); }
 		return true;
 	}
 	
@@ -81,30 +84,30 @@ class Quadtree<T : QuadtreeElement>
 	 * 
 	 * @return The list of element who collide with the box.
 	 */
-	public inline function getCollision(box:Box):Array<T>
+	public inline function getCollision(box:Box, ?output:DLL<T>):DLL<T>
 	{
+		if (output == null) 
+			output = new DLL<T>();
 		if (!boundaries.intersect(box))
-			return new Array<T>();
-		
-		var res:Array<T> = new Array<T>();
+			return output;
 		
 		// Add all from this level who intersect;
 		for (e in entities)
 		{
 			if (box.intersect(e.box()))
 			{
-				res.push(e);
+				output.append(e);
 			}
 		}
 		
 		if (topLeft == null)
-			return res;
+			return output;
 			
 		// Test if children contain some.
-		res = res.concat(topLeft.getCollision(box));
-		res = res.concat(topRight.getCollision(box));
-		res = res.concat(bottomRight.getCollision(box));
-		return res.concat(bottomLeft.getCollision(box));
+		topLeft.getCollision(box, output);
+		topRight.getCollision(box, output);
+		bottomRight.getCollision(box, output);
+		return bottomLeft.getCollision(box, output);
 		
 	}
 	
@@ -115,36 +118,29 @@ class Quadtree<T : QuadtreeElement>
 	 * 
 	 * @return The list of element who don't collide with the box.
 	 */
-	public inline function getExclusion(box:Box):Array<T>
+	public inline function getExclusion(box:Box, ?output:DLL<T>):DLL<T>
 	{
+		if (output == null) 
+			output = new DLL<T>();
 		if (boundaries.inside(box))
-			return new Array<T>();
+			return output;
 			
-		var res:Array<T>;
-		if (boundaries.intersect(box))
+		for (e in entities)
 		{
-			res = new Array<T>();
-			for (e in entities)
+			if (!box.intersect(e.box()))
 			{
-				if (!box.intersect(e.box()))
-				{
-					res.push(e);
-				}
+				output.append(e);
 			}
-		}
-		else
-		{
-			res = entities.copy();
 		}
 		
 		if (topLeft == null)
-			return res;
+			return output;
 		
 		// Test if children contain some.
-		res = res.concat(topLeft.getExclusion(box));
-		res = res.concat(topRight.getExclusion(box));
-		res = res.concat(bottomRight.getExclusion(box));
-		return res.concat(bottomLeft.getExclusion(box));
+		topLeft.getExclusion(box, output);
+		topRight.getExclusion(box, output);
+		bottomRight.getExclusion(box, output);
+		return bottomLeft.getExclusion(box, output);
 	}
 	
 	/**
@@ -179,9 +175,9 @@ class Quadtree<T : QuadtreeElement>
 		var botHeight:Int = boundaries.height - (topHeight + 1);
 		
 		topLeft = getChildTree(new Box(boundaries.x, boundaries.y, leftWidth, topHeight));
-		topRight = getChildTree(new Box(rightStartX,0,rightWidth,topHeight));
-		bottomRight = getChildTree(new Box(rightStartX, botStartY,rightWidth, botHeight));
-		bottomLeft = getChildTree(new Box(0,botStartY,leftWidth, botHeight));
+		topRight = getChildTree(new Box(rightStartX, 0, rightWidth, topHeight));
+		bottomRight = getChildTree(new Box(rightStartX, botStartY, rightWidth, botHeight));
+		bottomLeft = getChildTree(new Box(0, botStartY, leftWidth, botHeight));
 		
 		balance();		
 	}
