@@ -1,6 +1,7 @@
 package com.elnabo.quadtree;
 
 import de.polygonal.ds.DLL;
+import de.polygonal.ds.DLLNode;
 
 /**
  * Quadtree data structure.
@@ -42,7 +43,6 @@ class Quadtree<T : QuadtreeElement>
 	public inline function new(boundaries:Box, ?minElementBeforeSplit:Int=5, ?maxDepth:Int=2147483647)
 	{
 		entities = new DLL<T>(minElementBeforeSplit);
-		entities.reuseIterator = true;
 		this.boundaries = boundaries.clone();
 		this.minElementBeforeSplit = minElementBeforeSplit;
 		this.maxDepth = maxDepth;
@@ -93,12 +93,14 @@ class Quadtree<T : QuadtreeElement>
 			return output;
 		
 		// Add all from this level who intersect;
-		for (e in entities)
+		var node:DLLNode<T> = entities.head;
+		while (node != null) 
 		{
-			if (box.intersect(e.box()))
+			if (box.intersect(node.val.box()))
 			{
-				output.append(e);
+				output.append(node.val);
 			}
+			node = node.next;
 		}
 		
 		if (topLeft == null)
@@ -126,12 +128,14 @@ class Quadtree<T : QuadtreeElement>
 		if (boundaries.inside(box))
 			return output;
 			
-		for (e in entities)
+		var node:DLLNode<T> = entities.head;
+		while (node != null) 
 		{
-			if (!box.intersect(e.box()))
+			if (!box.intersect(node.val.box()))
 			{
-				output.append(e);
+				output.append(node.val);
 			}
+			node = node.next;
 		}
 		
 		if (topLeft == null)
@@ -188,13 +192,16 @@ class Quadtree<T : QuadtreeElement>
 	 */
 	private inline function balance():Void
 	{
-		for (e in entities)
+		var node:DLLNode<T> = entities.head;
+		while (node != null) 
 		{
-			if (topLeft.add(e) || topRight.add(e) ||
-				bottomRight.add(e) || bottomLeft.add(e))
+			var val:T = node.val;
+			if (topLeft.add(val) || topRight.add(val) ||
+				bottomRight.add(val) || bottomLeft.add(val))
 			{
-				entities.remove(e);
+				entities.remove(val);
 			}
+			node = node.next;
 		}
 	}
 	
