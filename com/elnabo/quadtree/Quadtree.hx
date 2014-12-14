@@ -149,6 +149,35 @@ class Quadtree<T : QuadtreeElement>
 	}
 	
 	/**
+	 * Return all the elements.
+	 * 
+	 * @param box  The box.
+	 * 
+	 * @return The list of elements.
+	 */
+	public inline function getAll(?output:DLL<T>):DLL<T>
+	{
+		if (output == null) 
+			output = new DLL<T>();
+			
+		var node:DLLNode<T> = entities.head;
+		while (node != null) 
+		{
+			output.append(node.val);
+			node = node.next;
+		}
+		
+		if (topLeft == null)
+			return output;
+		
+		// Test if children contain some.
+		topLeft.getAll(output);
+		topRight.getAll(output);
+		bottomRight.getAll(output);
+		return bottomLeft.getAll(output);
+	}
+	
+	/**
 	 * Create a new tree node.
 	 * 
 	 * Only used to create children.
