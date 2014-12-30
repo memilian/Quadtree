@@ -251,4 +251,18 @@ class Quadtree<T : QuadtreeElement>
 			topRight.remove(e)||bottomRight.remove(e)||
 			bottomLeft.remove(e);
 	}
+	
+	/**
+	 * Removes all elements.
+	 * @param purge if true, elements are nullified upon removal.
+	 */
+	public inline function clear(purge:Bool = false):Void
+	{
+		entities.clear(purge);
+		if (topLeft == null) return;
+		topLeft.clear(purge);
+		topRight.clear(purge);
+		bottomRight.clear(purge);
+		bottomLeft.clear(purge);
+	}
 }
