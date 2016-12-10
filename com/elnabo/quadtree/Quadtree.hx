@@ -1,7 +1,7 @@
 package com.elnabo.quadtree;
 
-import de.polygonal.ds.DLL;
-import de.polygonal.ds.DLLNode;
+import de.polygonal.ds.Dll;
+import de.polygonal.ds.DllNode;
 
 /**
  * Quadtree data structure.
@@ -9,7 +9,7 @@ import de.polygonal.ds.DLLNode;
 class Quadtree<T : QuadtreeElement>
 {
 	/** List of entities in this node. */
-	private var entities:DLL<T>;
+	private var entities:Dll<T>;
 	/** The boundaries of this node. */
 	private var boundaries:Box;
 	/** The depth of this node. */
@@ -42,7 +42,7 @@ class Quadtree<T : QuadtreeElement>
 	 */
 	public inline function new(boundaries:Box, ?minElementBeforeSplit:Int=5, ?maxDepth:Int=2147483647)
 	{
-		entities = new DLL<T>(minElementBeforeSplit);
+		entities = new Dll<T>(minElementBeforeSplit);
 		this.boundaries = boundaries.clone();
 		this.minElementBeforeSplit = minElementBeforeSplit;
 		this.maxDepth = maxDepth;
@@ -85,15 +85,15 @@ class Quadtree<T : QuadtreeElement>
 	 * 
 	 * @return The list of element who collide with the box.
 	 */
-	public inline function getCollision(box:Box, ?output:DLL<T>):DLL<T>
+	public inline function getCollision(box:Box, ?output:Dll<T>):Dll<T>
 	{
 		if (output == null) 
-			output = new DLL<T>();
+			output = new Dll<T>();
 		if (!boundaries.intersect(box))
 			return output;
 		
 		// Add all from this level who intersect;
-		var node:DLLNode<T> = entities.head;
+		var node:DllNode<T> = entities.head;
 		while (node != null) 
 		{
 			if (box.intersect(node.val.box()))
@@ -121,14 +121,14 @@ class Quadtree<T : QuadtreeElement>
 	 * 
 	 * @return The list of element who don't collide with the box.
 	 */
-	public inline function getExclusion(box:Box, ?output:DLL<T>):DLL<T>
+	public inline function getExclusion(box:Box, ?output:Dll<T>):Dll<T>
 	{
 		if (output == null) 
-			output = new DLL<T>();
+			output = new Dll<T>();
 		if (boundaries.inside(box))
 			return output;
 			
-		var node:DLLNode<T> = entities.head;
+		var node:DllNode<T> = entities.head;
 		while (node != null) 
 		{
 			if (!box.intersect(node.val.box()))
@@ -155,12 +155,12 @@ class Quadtree<T : QuadtreeElement>
 	 * 
 	 * @return The list of elements.
 	 */
-	public inline function getAll(?output:DLL<T>):DLL<T>
+	public inline function getAll(?output:Dll<T>):Dll<T>
 	{
 		if (output == null) 
-			output = new DLL<T>();
+			output = new Dll<T>();
 			
-		var node:DLLNode<T> = entities.head;
+		var node:DllNode<T> = entities.head;
 		while (node != null) 
 		{
 			output.append(node.val);
@@ -221,7 +221,7 @@ class Quadtree<T : QuadtreeElement>
 	 */
 	private inline function balance():Void
 	{
-		var node:DLLNode<T> = entities.head;
+		var node:DllNode<T> = entities.head;
 		while (node != null) 
 		{
 			var val:T = node.val;
