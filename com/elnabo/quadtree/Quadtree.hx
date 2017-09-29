@@ -62,7 +62,7 @@ class Quadtree<T : QuadtreeElement>
 			
 		// Try to add it in a children.
 		var added:Bool = false;
-		if (depth < maxDepth && entities.size() >=  minElementBeforeSplit)
+		if (depth < maxDepth && entities.size >=  minElementBeforeSplit)
 		{
 			if (topLeft == null)
 				split();
